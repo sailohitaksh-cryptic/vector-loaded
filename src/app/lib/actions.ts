@@ -1,6 +1,7 @@
 // src/app/lib/actions.ts
 
 'use server';
+
 import { signIn, auth } from '@/../auth';
 import { AuthError } from 'next-auth';
 import { sql } from '@vercel/postgres';
@@ -9,9 +10,7 @@ import { z } from 'zod';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
-
 // --- LOGIN ACTION ---
-// ... (Your existing authenticate function remains the same)
 export async function authenticate(
   prevState: string | undefined,
   formData: FormData,
@@ -37,8 +36,10 @@ export async function authenticate(
 
 
 // --- SIGNUP ACTION ---
-// ... (Your existing signup function remains the same)
-export type SignUpState = { message?: string; };
+export type SignUpState = {
+  message?: string;
+};
+
 export async function signup(
   prevState: SignUpState | undefined,
   formData: FormData,
@@ -65,14 +66,15 @@ export async function signup(
       VALUES (${email}, ${hashedPassword})
     `;
   } catch (error) {
-    if ((error as any)?.code === '23505') {
+    // THE FIX: Use a more specific type for the error
+    const dbError = error as { code?: string };
+    if (dbError?.code === '23505') {
       return { message: 'This email is already registered.' };
     }
     return { message: 'Database Error: Failed to create user.' };
   }
   redirect('/');
 }
-
 
 // --- ANNOTATION ACTION ---
 export type AnnotationState = {
@@ -123,7 +125,7 @@ export async function submitAnnotation(
   try {
     await sql`
       INSERT INTO annotations ("userId", "imageId", "userStatus")
-      VALUES (${userId}, ${imageId}, ${finalStatus})
+      VALUES (${Number(userId)}, ${imageId}, ${finalStatus})
       ON CONFLICT ("userId", "imageId") DO UPDATE SET "userStatus" = ${finalStatus};
     `;
   } catch (error) {
