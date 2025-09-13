@@ -6,7 +6,7 @@ import { sql } from "@vercel/postgres";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { authConfig } from './auth.config';
-import type { User } from './src/app/lib/definitions'; // <-- CORRECTED PATH
+import type { User } from './src/app/lib/definitions.ts'; // <-- CORRECTED PATH
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
