@@ -1,0 +1,5 @@
+# .vercelignore
+
+node_modules
+.next
+src/app/lib/seed.js
