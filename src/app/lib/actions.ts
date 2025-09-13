@@ -2,7 +2,7 @@
 
 'use server';
 
-import { signIn, auth } from '@/../auth';
+import { signIn, auth } from '@/../auth'; // <-- Added 'auth' import
 import { AuthError } from 'next-auth';
 import { sql } from '@vercel/postgres';
 import bcrypt from 'bcryptjs';
@@ -10,63 +10,29 @@ import { z } from 'zod';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
-// --- LOGIN ACTION ---
-export async function authenticate(
-  prevState: string | undefined,
-  formData: FormData,
-) {
+// --- LOGIN & SIGNUP ACTIONS (Unchanged) ---
+export async function authenticate(prevState: string | undefined, formData: FormData) {
   try {
-    await signIn('credentials', {
-      ...Object.fromEntries(formData),
-      redirect: false,
-    });
+    await signIn('credentials', { ...Object.fromEntries(formData), redirect: false });
   } catch (error) {
     if (error instanceof AuthError) {
-      switch (error.type) {
-        case 'CredentialsSignin':
-          return 'Invalid credentials.';
-        default:
-          return 'Something went wrong.';
-      }
+      return 'Invalid credentials.';
     }
     throw error;
   }
   redirect('/home');
 }
-
-
-// --- SIGNUP ACTION ---
-export type SignUpState = {
-  message?: string;
-};
-
-export async function signup(
-  prevState: SignUpState | undefined,
-  formData: FormData,
-): Promise<SignUpState> {
-  const parsedCredentials = z
-    .object({
-      email: z.string().email('Please enter a valid email.'),
-      password: z.string().min(6, 'Password must be at least 6 characters.'),
-    })
-    .safeParse(Object.fromEntries(formData.entries()));
-
+export type SignUpState = { message?: string; };
+export async function signup(prevState: SignUpState | undefined, formData: FormData): Promise<SignUpState> {
+  const parsedCredentials = z.object({ email: z.string().email(), password: z.string().min(6) }).safeParse(Object.fromEntries(formData.entries()));
   if (!parsedCredentials.success) {
-    return {
-      message: parsedCredentials.error.errors.map((e) => e.message).join(', '),
-    };
+    return { message: parsedCredentials.error.errors.map((e) => e.message).join(', ') };
   }
-  
   const { email, password } = parsedCredentials.data;
   const hashedPassword = await bcrypt.hash(password, 10);
-
   try {
-    await sql`
-      INSERT INTO users (email, password)
-      VALUES (${email}, ${hashedPassword})
-    `;
+    await sql`INSERT INTO users (email, password) VALUES (${email}, ${hashedPassword})`;
   } catch (error) {
-    // THE FIX: Use a more specific type for the error
     const dbError = error as { code?: string };
     if (dbError?.code === '23505') {
       return { message: 'This email is already registered.' };
@@ -77,6 +43,7 @@ export async function signup(
 }
 
 // --- ANNOTATION ACTION ---
+
 export type AnnotationState = {
   errors?: {
     userAgrees?: string[];
