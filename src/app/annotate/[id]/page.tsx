@@ -7,7 +7,12 @@ import Link from 'next/link';
 import AnnotationForm from '@/app/ui/annotation-form';
 import Logo from '@/app/ui/logo';
 
-export default async function AnnotationPage({ params }: { params: { id: string } }) {
+// Define a specific type for the page's props
+interface AnnotationPageProps {
+  params: { id: string };
+}
+
+export default async function AnnotationPage({ params }: AnnotationPageProps) { // <-- Use the new type here
   const id = Number(params.id);
   const data = await fetchImageForAnnotation(id);
 
@@ -24,20 +29,17 @@ export default async function AnnotationPage({ params }: { params: { id: string 
         </header>
 
         <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
-            {/* Image Panel */}
             <div className="w-full md:w-3/4 p-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 relative">
-                {/* The Image component is now the direct child for better scaling */}
                 <Image
                     src={image.imageUrl}
                     alt={image.imageName}
                     fill
-                    className="object-contain" // Ensures the whole image is visible
-                    quality={100} // Requests the highest possible quality
-                    sizes="100vw" // Informs Next.js the image can be large
+                    className="object-contain"
+                    quality={100}
+                    sizes="100vw"
                 />
             </div>
 
-            {/* Annotation Panel */}
             <div className="w-full md:w-1/4 bg-white dark:bg-gray-800 p-6 shadow-lg overflow-y-auto">
                 <h1 className="text-2xl font-bold mb-2">Annotation</h1>
                 <p className="text-sm text-gray-500 mb-6 font-mono break-words">{image.imageName}</p>
