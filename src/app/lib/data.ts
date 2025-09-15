@@ -1,8 +1,6 @@
-// src/app/lib/data.ts
-
 import { sql } from '@vercel/postgres';
 import { auth } from '@/../auth';
-import type { ImageForAnnotation } from './definitions'; // We'll create this file
+import type { ImageForAnnotation, User } from './definitions';
 
 const IMAGES_PER_PAGE = 50;
 
@@ -16,10 +14,10 @@ export async function fetchImagePages() {
     const unannotatedCount = await sql`
       SELECT COUNT(*)
       FROM images i
-      LEFT JOIN annotations a ON i.id = a."imageId" AND a."userId" = ${userId}
+      LEFT JOIN annotations a ON i.id = a."imageId" AND a."userId" = ${Number(userId)}
       WHERE a.id IS NULL
     `;
-    const annotatedCount = await sql`SELECT COUNT(*) FROM annotations WHERE "userId" = ${userId}`;
+    const annotatedCount = await sql`SELECT COUNT(*) FROM annotations WHERE "userId" = ${Number(userId)}`;
 
     const unannotatedPages = Math.ceil(Number(unannotatedCount.rows[0].count) / IMAGES_PER_PAGE);
     const annotatedPages = Math.ceil(Number(annotatedCount.rows[0].count) / IMAGES_PER_PAGE);
@@ -50,9 +48,10 @@ export async function fetchImagesForUser(
           i."imageUrl",
           i."modelStatus"
         FROM images i
-        LEFT JOIN annotations a ON i.id = a."imageId" AND a."userId" = ${userId}
+        LEFT JOIN annotations a ON i.id = a."imageId" AND a."userId" = ${Number(userId)}
         WHERE a.id IS NULL
-        ORDER BY i.id
+        -- THE FIX: Order randomly based on a combination of image ID and user ID
+        ORDER BY md5(i.id::text || ${userId})
         LIMIT ${IMAGES_PER_PAGE} OFFSET ${offset}
       `;
       return data.rows;
@@ -65,7 +64,7 @@ export async function fetchImagesForUser(
           i."modelStatus"
         FROM images i
         INNER JOIN annotations a ON i.id = a."imageId"
-        WHERE a."userId" = ${userId}
+        WHERE a."userId" = ${Number(userId)}
         ORDER BY a."verifiedAt" DESC
         LIMIT ${IMAGES_PER_PAGE} OFFSET ${offset}
       `;
@@ -83,22 +82,25 @@ export async function fetchImageForAnnotation(id: number) {
     if (!userId) return null;
 
     try {
-        // Fetch the target image
         const imageResult = await sql<ImageForAnnotation>`SELECT * FROM images WHERE id = ${id}`;
         const image = imageResult.rows[0];
 
         if (!image) return null;
 
-        // Fetch the ID of the next unannotated image
+        // Fetch the ID of the next unannotated image in the user's random sequence
         const nextImageResult = await sql`
             SELECT i.id FROM images i
-            LEFT JOIN annotations a ON i.id = a."imageId" AND a."userId" = ${userId}
-            WHERE a.id IS NULL AND i.id > ${id}
-            ORDER BY i.id ASC
-            LIMIT 1
+            LEFT JOIN annotations a ON i.id = a."imageId" AND a."userId" = ${Number(userId)}
+            WHERE a.id IS NULL
+            ORDER BY md5(i.id::text || ${userId})
         `;
-        const nextId = nextImageResult.rows[0]?.id || null;
         
+        const allUnannotatedIds = nextImageResult.rows.map(r => r.id);
+        const currentIndex = allUnannotatedIds.findIndex(imgId => imgId === id);
+        const nextId = currentIndex !== -1 && currentIndex < allUnannotatedIds.length - 1 
+            ? allUnannotatedIds[currentIndex + 1] 
+            : null;
+
         return { image, nextId };
 
     } catch (error) {
