@@ -18,18 +18,19 @@ export default async function AnnotationPage({ params }: { params: { id: string 
   const { image, nextId } = data;
 
   return (
-    // On mobile, the entire page scrolls. On desktop, only the form scrolls.
-    <div className="flex flex-col h-screen md:overflow-hidden">
+    <div className="flex flex-col h-screen">
         <header className="w-full bg-white dark:bg-gray-800 shadow-md p-4 flex-shrink-0 z-10">
             <Logo size={50} />
         </header>
 
-        <div className="flex flex-col md:flex-row flex-grow md:overflow-hidden">
+        {/* This container will scroll on mobile if content overflows */}
+        <div className="flex flex-col md:flex-row flex-grow overflow-y-auto md:overflow-hidden">
             
             {/* Image Panel */}
-            <div className="w-full md:w-2/3 flex items-center justify-center bg-gray-900 flex-shrink-0 md:h-full md:overflow-y-auto">
-                {/* On mobile, this container will create a large viewing area */}
-                <div className="relative w-full aspect-square md:aspect-auto md:min-h-full">
+            <div className="w-full md:w-2/3 p-4 flex items-center justify-center bg-gray-900 flex-shrink-0 md:h-full">
+                {/* THE FIX: On mobile, this container is now a flex item that can grow and shrink.
+                    The min-h-[50vh] ensures it has a large minimum height. */}
+                <div className="relative w-full min-h-[50vh] md:h-full">
                     <Image
                         src={image.imageUrl}
                         alt={image.imageName}
@@ -42,7 +43,7 @@ export default async function AnnotationPage({ params }: { params: { id: string 
             </div>
 
             {/* Annotation Panel */}
-            <div className="w-full md:w-1/3 bg-white dark:bg-gray-800 p-6 shadow-lg md:overflow-y-auto">
+            <div className="w-full md:w-1/3 bg-white dark:bg-gray-800 p-6 shadow-lg md:overflow-y-auto flex-shrink-0">
                 <h1 className="text-2xl font-bold mb-2">Annotation</h1>
                 <p className="text-sm text-gray-500 mb-6 font-mono break-words">{image.imageName}</p>
 
