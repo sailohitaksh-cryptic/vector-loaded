@@ -7,12 +7,7 @@ import Link from 'next/link';
 import AnnotationForm from '@/app/ui/annotation-form';
 import Logo from '@/app/ui/logo';
 
-// Define a specific type for the page's props
-interface AnnotationPageProps {
-  params: { id: string };
-}
-
-export default async function AnnotationPage({ params }: AnnotationPageProps) { // <-- Use the new type here
+export default async function AnnotationPage({ params }: { params: { id: string } }) {
   const id = Number(params.id);
   const data = await fetchImageForAnnotation(id);
 
@@ -23,23 +18,29 @@ export default async function AnnotationPage({ params }: AnnotationPageProps) { 
   const { image, nextId } = data;
 
   return (
-    <div className="flex flex-col h-screen">
-        <header className="w-full bg-white dark:bg-gray-800 shadow-md p-4 flex justify-start">
+    // Main container now has a fixed height of the screen and hides overflow
+    <div className="flex flex-col h-screen overflow-hidden">
+        <header className="w-full bg-white dark:bg-gray-800 shadow-md p-4 flex-shrink-0">
             <Logo size={50} />
         </header>
 
+        {/* This container will manage the two-column layout */}
         <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
-            <div className="w-full md:w-3/4 p-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 relative">
+            {/* Image Panel */}
+            {/* On mobile, this takes 50% of the viewport height. On desktop, it takes 75% of the width. */}
+            <div className="w-full h-[50vh] md:h-full md:w-3/4 p-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 relative">
                 <Image
                     src={image.imageUrl}
                     alt={image.imageName}
                     fill
                     className="object-contain"
                     quality={100}
-                    sizes="100vw"
+                    sizes="(max-width: 768px) 100vw, 75vw"
                 />
             </div>
 
+            {/* Annotation Panel */}
+            {/* On mobile, this takes the remaining height. On desktop, it takes 25% of the width. */}
             <div className="w-full md:w-1/4 bg-white dark:bg-gray-800 p-6 shadow-lg overflow-y-auto">
                 <h1 className="text-2xl font-bold mb-2">Annotation</h1>
                 <p className="text-sm text-gray-500 mb-6 font-mono break-words">{image.imageName}</p>
