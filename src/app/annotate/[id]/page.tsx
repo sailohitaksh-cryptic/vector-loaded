@@ -27,7 +27,7 @@ export default async function AnnotationPage({ params }: { params: { id: string 
         <div className="flex flex-col md:flex-row flex-grow md:overflow-hidden">
             
             {/* Image Panel */}
-            <div className="w-full md:w-2/3 p-4 flex items-center justify-center bg-gray-900 flex-shrink-0 md:h-full md:overflow-y-auto">
+            <div className="w-full md:w-2/3 p-1 flex items-center justify-center bg-gray-900 flex-shrink-0 md:h-full md:overflow-y-auto">
                 {/* On mobile, this container will create a large viewing area */}
                 <div className="relative w-full aspect-square md:aspect-auto md:min-h-full">
                     <Image
