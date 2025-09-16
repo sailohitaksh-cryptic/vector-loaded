@@ -1,3 +1,5 @@
+// src/app/annotate/[id]/page.tsx
+
 import { fetchImageForAnnotation } from '@/app/lib/data';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
@@ -16,7 +18,7 @@ export default async function AnnotationPage({ params }: { params: { id: string 
   const { image, nextId } = data;
 
   return (
-    // The main container allows vertical scrolling on mobile if content overflows
+    // On mobile, this main container will scroll if content overflows the screen height
     <div className="flex flex-col h-screen">
         <header className="w-full bg-white dark:bg-gray-800 shadow-md p-4 flex-shrink-0 z-10">
             <Logo size={50} />
@@ -26,9 +28,9 @@ export default async function AnnotationPage({ params }: { params: { id: string 
         <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
             
             {/* Image Panel */}
-            <div className="w-full md:w-2/3 p-4 flex items-center justify-center bg-gray-900 relative flex-shrink-0">
-                {/* On mobile, this container takes full width and has a 16:9 aspect ratio */}
-                <div className="w-full aspect-video md:aspect-auto md:h-full relative">
+            {/* On desktop, this takes 2/3 of the width and is sticky */}
+            <div className="w-full md:w-2/3 bg-gray-900 flex-shrink-0 md:h-full md:overflow-y-auto">
+                <div className="relative w-full aspect-video md:aspect-auto md:min-h-full">
                     <Image
                         src={image.imageUrl}
                         alt={image.imageName}
@@ -41,6 +43,7 @@ export default async function AnnotationPage({ params }: { params: { id: string 
             </div>
 
             {/* Annotation Panel */}
+            {/* On mobile, this panel will be scrollable if the screen is short */}
             <div className="w-full md:w-1/3 bg-white dark:bg-gray-800 p-6 shadow-lg overflow-y-auto">
                 <h1 className="text-2xl font-bold mb-2">Annotation</h1>
                 <p className="text-sm text-gray-500 mb-6 font-mono break-words">{image.imageName}</p>
