@@ -27,7 +27,7 @@ export default async function AnnotationPage({ params }: { params: { id: string 
             {/* Image Panel */}
             {/* On mobile, this now takes ~66% of the screen height. */}
             {/* On desktop, it takes 2/3 of the screen width. */}
-            <div className="w-full h-[80vh] md:h-full md:w-2/3 p-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 relative">
+            <div className="w-full h-[100vh] md:h-full md:w-1 p-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 relative">
                 <Image
                     src={image.imageUrl}
                     alt={image.imageName}
