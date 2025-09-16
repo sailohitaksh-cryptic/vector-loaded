@@ -27,7 +27,7 @@ export default async function AnnotationPage({ params }: { params: { id: string 
             {/* Image Panel */}
             {/* On mobile, this now takes ~66% of the screen height. */}
             {/* On desktop, it takes 2/3 of the screen width. */}
-            <div className="w-full h-[66vh] md:h-full md:w-2/3 p-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 relative">
+            <div className="w-full h-[80vh] md:h-full md:w-2/3 p-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 relative">
                 <Image
                     src={image.imageUrl}
                     alt={image.imageName}
@@ -35,7 +35,7 @@ export default async function AnnotationPage({ params }: { params: { id: string 
                     className="object-contain"
                     quality={100}
                     // Updated sizes for better image optimization
-                    sizes="(max-width: 768px) 100vw, 66vw"
+                    sizes="(max-width: 768px) 100vw, 80vw"
                 />
             </div>
 
