@@ -27,10 +27,10 @@ export default async function AnnotationPage({ params }: { params: { id: string 
         <div className="flex flex-col md:flex-row flex-grow overflow-y-auto md:overflow-hidden">
             
             {/* Image Panel */}
-            <div className="w-full md:w-2/3 p-4 flex items-center justify-center bg-gray-900 flex-shrink-0 md:h-full">
+            <div className="w-full md:w-2/3 flex items-center justify-center bg-gray-900 flex-shrink-0 md:h-full">
                 {/* THE FIX: On mobile, this container is now a flex item that can grow and shrink.
                     The min-h-[50vh] ensures it has a large minimum height. */}
-                <div className="relative w-full min-h-[50vh] md:h-full">
+                <div className="relative w-full min-h-[70vh] md:h-full">
                     <Image
                         src={image.imageUrl}
                         alt={image.imageName}
