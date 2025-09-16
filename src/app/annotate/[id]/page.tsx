@@ -1,5 +1,3 @@
-// src/app/annotate/[id]/page.tsx
-
 import { fetchImageForAnnotation } from '@/app/lib/data';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
@@ -18,29 +16,31 @@ export default async function AnnotationPage({ params }: { params: { id: string 
   const { image, nextId } = data;
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
-        <header className="w-full bg-white dark:bg-gray-800 shadow-md p-4 flex-shrink-0">
+    // The main container allows vertical scrolling on mobile if content overflows
+    <div className="flex flex-col h-screen">
+        <header className="w-full bg-white dark:bg-gray-800 shadow-md p-4 flex-shrink-0 z-10">
             <Logo size={50} />
         </header>
 
+        {/* This container switches from column (mobile) to row (desktop) */}
         <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
+            
             {/* Image Panel */}
-            {/* On mobile, this now takes ~66% of the screen height. */}
-            {/* On desktop, it takes 2/3 of the screen width. */}
-            <div className="w-full h-[100vh] md:h-full md:w-1 p-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 relative">
-                <Image
-                    src={image.imageUrl}
-                    alt={image.imageName}
-                    fill
-                    className="object-contain"
-                    quality={100}
-                    // Updated sizes for better image optimization
-                    sizes="(max-width: 768px) 100vw, 80vw"
-                />
+            <div className="w-full md:w-2/3 p-4 flex items-center justify-center bg-gray-900 relative flex-shrink-0">
+                {/* On mobile, this container takes full width and has a 16:9 aspect ratio */}
+                <div className="w-full aspect-video md:aspect-auto md:h-full relative">
+                    <Image
+                        src={image.imageUrl}
+                        alt={image.imageName}
+                        fill
+                        className="object-contain" // Ensures image is not cropped
+                        quality={100}
+                        sizes="(max-width: 768px) 100vw, 66vw"
+                    />
+                </div>
             </div>
 
             {/* Annotation Panel */}
-            {/* On desktop, this now takes a wider 1/3 of the screen width. */}
             <div className="w-full md:w-1/3 bg-white dark:bg-gray-800 p-6 shadow-lg overflow-y-auto">
                 <h1 className="text-2xl font-bold mb-2">Annotation</h1>
                 <p className="text-sm text-gray-500 mb-6 font-mono break-words">{image.imageName}</p>
