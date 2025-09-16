@@ -18,30 +18,30 @@ export default async function AnnotationPage({ params }: { params: { id: string 
   const { image, nextId } = data;
 
   return (
-    // Main container now has a fixed height of the screen and hides overflow
     <div className="flex flex-col h-screen overflow-hidden">
         <header className="w-full bg-white dark:bg-gray-800 shadow-md p-4 flex-shrink-0">
             <Logo size={50} />
         </header>
 
-        {/* This container will manage the two-column layout */}
         <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
             {/* Image Panel */}
-            {/* On mobile, this takes 50% of the viewport height. On desktop, it takes 75% of the width. */}
-            <div className="w-full h-[50vh] md:h-full md:w-3/4 p-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 relative">
+            {/* On mobile, this now takes ~66% of the screen height. */}
+            {/* On desktop, it takes 2/3 of the screen width. */}
+            <div className="w-full h-[66vh] md:h-full md:w-2/3 p-4 flex items-center justify-center bg-gray-100 dark:bg-gray-900 relative">
                 <Image
                     src={image.imageUrl}
                     alt={image.imageName}
                     fill
                     className="object-contain"
                     quality={100}
-                    sizes="(max-width: 768px) 100vw, 75vw"
+                    // Updated sizes for better image optimization
+                    sizes="(max-width: 768px) 100vw, 66vw"
                 />
             </div>
 
             {/* Annotation Panel */}
-            {/* On mobile, this takes the remaining height. On desktop, it takes 25% of the width. */}
-            <div className="w-full md:w-1/4 bg-white dark:bg-gray-800 p-6 shadow-lg overflow-y-auto">
+            {/* On desktop, this now takes a wider 1/3 of the screen width. */}
+            <div className="w-full md:w-1/3 bg-white dark:bg-gray-800 p-6 shadow-lg overflow-y-auto">
                 <h1 className="text-2xl font-bold mb-2">Annotation</h1>
                 <p className="text-sm text-gray-500 mb-6 font-mono break-words">{image.imageName}</p>
 
