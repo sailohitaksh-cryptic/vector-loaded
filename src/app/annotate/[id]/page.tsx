@@ -18,24 +18,23 @@ export default async function AnnotationPage({ params }: { params: { id: string 
   const { image, nextId } = data;
 
   return (
-    // On mobile, this main container will scroll if content overflows the screen height
-    <div className="flex flex-col h-screen">
+    // On mobile, the entire page scrolls. On desktop, only the form scrolls.
+    <div className="flex flex-col h-screen md:overflow-hidden">
         <header className="w-full bg-white dark:bg-gray-800 shadow-md p-4 flex-shrink-0 z-10">
             <Logo size={50} />
         </header>
 
-        {/* This container switches from column (mobile) to row (desktop) */}
-        <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
+        <div className="flex flex-col md:flex-row flex-grow md:overflow-hidden">
             
             {/* Image Panel */}
-            {/* On desktop, this takes 2/3 of the width and is sticky */}
-            <div className="w-full md:w-2/3 bg-gray-900 flex-shrink-0 md:h-full md:overflow-y-auto">
-                <div className="relative w-full aspect-video md:aspect-auto md:min-h-full">
+            <div className="w-full md:w-2/3 p-4 flex items-center justify-center bg-gray-900 flex-shrink-0 md:h-full md:overflow-y-auto">
+                {/* On mobile, this container will create a large viewing area */}
+                <div className="relative w-full aspect-square md:aspect-auto md:min-h-full">
                     <Image
                         src={image.imageUrl}
                         alt={image.imageName}
                         fill
-                        className="object-contain" // Ensures image is not cropped
+                        className="object-contain"
                         quality={100}
                         sizes="(max-width: 768px) 100vw, 66vw"
                     />
@@ -43,8 +42,7 @@ export default async function AnnotationPage({ params }: { params: { id: string 
             </div>
 
             {/* Annotation Panel */}
-            {/* On mobile, this panel will be scrollable if the screen is short */}
-            <div className="w-full md:w-1/3 bg-white dark:bg-gray-800 p-6 shadow-lg overflow-y-auto">
+            <div className="w-full md:w-1/3 bg-white dark:bg-gray-800 p-6 shadow-lg md:overflow-y-auto">
                 <h1 className="text-2xl font-bold mb-2">Annotation</h1>
                 <p className="text-sm text-gray-500 mb-6 font-mono break-words">{image.imageName}</p>
 
