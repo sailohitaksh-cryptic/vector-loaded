@@ -21,18 +21,19 @@
     "next-auth": "^5.0.0-beta.19",
     "react": "^18",
     "react-dom": "^18",
+    "react-medium-image-zoom": "^5.4.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }

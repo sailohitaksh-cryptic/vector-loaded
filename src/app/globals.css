@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import 'react-medium-image-zoom/dist/styles.css';
+@import "tailwindcss";
 
 :root {
   --background: #ffffff;

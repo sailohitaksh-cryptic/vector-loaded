@@ -2,10 +2,10 @@
 
 import { fetchImageForAnnotation } from '@/app/lib/data';
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
 import AnnotationForm from '@/app/ui/annotation-form';
 import Logo from '@/app/ui/logo';
+import ImageViewer from '@/app/ui/image-viewer'; // <-- Import the new component
 
 export default async function AnnotationPage({ params }: { params: { id: string } }) {
   const id = Number(params.id);
@@ -23,27 +23,16 @@ export default async function AnnotationPage({ params }: { params: { id: string 
             <Logo size={50} />
         </header>
 
-        {/* This container will scroll on mobile if content overflows */}
-        <div className="flex flex-col md:flex-row flex-grow overflow-y-auto md:overflow-hidden">
+        <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
             
-            {/* Image Panel */}
-            <div className="w-full md:w-2/3 flex items-center justify-center bg-gray-900 flex-shrink-0 md:h-full">
-                {/* THE FIX: On mobile, this container is now a flex item that can grow and shrink.
-                    The min-h-[50vh] ensures it has a large minimum height. */}
-                <div className="relative w-full min-h-[70vh] md:h-full">
-                    <Image
-                        src={image.imageUrl}
-                        alt={image.imageName}
-                        fill
-                        className="object-contain"
-                        quality={100}
-                        sizes="(max-width: 768px) 100vw, 66vw"
-                    />
+            <div className="w-full md:w-2/3 p-4 flex items-center justify-center bg-gray-900 relative flex-shrink-0 md:h-full">
+                <div className="relative w-full min-h-[50vh] md:h-full">
+                    {/* Use the new ImageViewer component */}
+                    <ImageViewer src={image.imageUrl} alt={image.imageName} />
                 </div>
             </div>
 
-            {/* Annotation Panel */}
-            <div className="w-full md:w-1/3 bg-white dark:bg-gray-800 p-6 shadow-lg md:overflow-y-auto flex-shrink-0">
+            <div className="w-full md:w-1/3 bg-white dark:bg-gray-800 p-6 shadow-lg overflow-y-auto">
                 <h1 className="text-2xl font-bold mb-2">Annotation</h1>
                 <p className="text-sm text-gray-500 mb-6 font-mono break-words">{image.imageName}</p>
 
