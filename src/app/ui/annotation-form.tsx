@@ -57,7 +57,7 @@ export default function AnnotationForm({ image, nextId }: AnnotationFormProps) {
       
       {state.message && <p className="text-sm text-red-500">{state.message}</p>}
       
-      {/* Action Buttons with Skip */}
+      {/* Action Buttons */}
       <div className="flex items-center gap-4 pt-4">
         <SubmitButton />
         <Link 
