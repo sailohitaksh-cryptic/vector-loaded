@@ -9,6 +9,7 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
+import { db } from '@vercel/postgres';
 
 // --- LOGIN & SIGNUP ACTIONS (Unchanged) ---
 export async function authenticate(prevState: string | undefined, formData: FormData) {
@@ -61,46 +62,42 @@ export async function submitAnnotation(
 ) {
   const session = await auth();
   const userId = session?.user?.id;
-  if (!userId) {
-    return { message: 'Authentication error.' };
-  }
+  if (!userId) return { message: 'Authentication error.' };
 
   const validatedFields = z.object({
-    userAgrees: z.enum(['yes', 'no'], {invalid_type_error: 'Please select Yes or No.'}),
+    userAgrees: z.enum(['yes', 'no']),
     actualStatus: z.string().optional(),
   }).safeParse(Object.fromEntries(formData.entries()));
 
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing Fields. Failed to Submit.',
-    };
-  }
+  if (!validatedFields.success) return { message: 'Missing fields.' };
   
   const { userAgrees, actualStatus } = validatedFields.data;
-  let finalStatus = '';
+  let finalStatus = (userAgrees === 'yes') ? modelStatus : actualStatus;
 
-  if (userAgrees === 'yes') {
-    finalStatus = modelStatus;
-  } else {
-    if (!actualStatus || actualStatus === '') {
-      return { message: 'Please select the actual status.' };
-    }
-    finalStatus = actualStatus;
-  }
+  if (!finalStatus) return { message: 'Please select the actual status.' };
 
+  const client = await db.connect();
   try {
-    await sql`
+    await client.sql`BEGIN`;
+    await client.sql`
       INSERT INTO annotations ("userId", "imageId", "userStatus")
       VALUES (${Number(userId)}, ${imageId}, ${finalStatus})
       ON CONFLICT ("userId", "imageId") DO UPDATE SET "userStatus" = ${finalStatus};
     `;
+    await client.sql`
+      UPDATE image_assignments
+      SET status = 'completed'
+      WHERE "userId" = ${Number(userId)} AND "imageId" = ${imageId};
+    `;
+    await client.sql`COMMIT`;
   } catch (error) {
+    await client.sql`ROLLBACK`;
     return { message: 'Database Error: Failed to save annotation.' };
+  } finally {
+    client.release();
   }
   
   revalidatePath('/home');
-
   if (nextId) {
     redirect(`/annotate/${nextId}`);
   } else {

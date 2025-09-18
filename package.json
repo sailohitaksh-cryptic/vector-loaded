@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "node src/app/lib/seed.js"
+    "seed": "node src/app/lib/seed.js",
+    "assign-images": "node src/app/lib/assign-images.js"
   },
   "dependencies": {
     "@headlessui/react": "^2.1.2",
