@@ -10,10 +10,11 @@ import Link from 'next/link';
 
 interface AnnotationFormProps {
   image: ImageForAnnotation;
+  prevId: number | null;
   nextId: number | null;
 }
 
-export default function AnnotationForm({ image, nextId }: AnnotationFormProps) {
+export default function AnnotationForm({ image, prevId, nextId }: AnnotationFormProps) {
   const isAnnotated = !!image.userStatus;
   
   const [agreed, setAgreed] = useState<boolean | null>(null);
@@ -26,7 +27,7 @@ export default function AnnotationForm({ image, nextId }: AnnotationFormProps) {
     <div>
       {/* --- View-Only Mode --- */}
       {isAnnotated && (
-        <div className="space-y-6 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
+        <div className="space-y-4 bg-gray-100 dark:bg-gray-700 p-4 rounded-lg">
           <div>
             <p className="font-semibold text-gray-900 dark:text-gray-200">Model Prediction:</p>
             <p className="text-lg p-2 bg-white dark:bg-gray-600 rounded mt-1">{image.modelStatus}</p>
@@ -35,7 +36,25 @@ export default function AnnotationForm({ image, nextId }: AnnotationFormProps) {
             <p className="font-semibold text-green-600 dark:text-green-400">Your Previous Annotation:</p>
             <p className="text-lg font-bold p-2 bg-white dark:bg-gray-600 rounded mt-1">{image.userStatus}</p>
           </div>
-          {/* --- Edit Button Form --- */}
+          
+          {/* --- Navigation Buttons for Annotated View --- */}
+          <div className="flex items-center gap-4 pt-2">
+            {prevId ? (
+              <Link href={`/annotate/${prevId}`} className="w-full text-center bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+                &larr; Previous
+              </Link>
+            ) : (
+              <span className="w-full text-center bg-gray-300 dark:bg-gray-800 text-gray-500 font-bold py-2 px-4 rounded cursor-not-allowed">&larr; Previous</span>
+            )}
+            {nextId ? (
+              <Link href={`/annotate/${nextId}`} className="w-full text-center bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded">
+                Next &rarr;
+              </Link>
+            ) : (
+                <span className="w-full text-center bg-gray-300 dark:bg-gray-800 text-gray-500 font-bold py-2 px-4 rounded cursor-not-allowed">Next &rarr;</span>
+            )}
+          </div>
+
           <form action={revertAnnotationWithId} className="pt-2">
              <EditButton />
           </form>
@@ -45,6 +64,7 @@ export default function AnnotationForm({ image, nextId }: AnnotationFormProps) {
       {/* --- Annotation Form (only shown if not yet annotated) --- */}
       {!isAnnotated && (
         <form action={dispatch} className="space-y-6">
+          {/* ... (rest of the form remains the same) ... */}
           <div>
             <p className="font-semibold">Model Prediction:</p>
             <p className="text-lg p-2 bg-gray-100 dark:bg-gray-700 rounded">{image.modelStatus}</p>
@@ -85,7 +105,7 @@ export default function AnnotationForm({ image, nextId }: AnnotationFormProps) {
   );
 }
 
-// Button for submitting a new annotation
+// ... (SubmitButton and EditButton functions remain the same) ...
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
@@ -94,8 +114,6 @@ function SubmitButton() {
     </button>
   );
 }
-
-// Button for editing an existing annotation
 function EditButton() {
     const { pending } = useFormStatus();
     return (
