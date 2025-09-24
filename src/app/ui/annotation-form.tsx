@@ -5,7 +5,7 @@
 import { useState } from 'react';
 import type { ImageForAnnotation } from '@/app/lib/definitions';
 import { useFormState, useFormStatus } from 'react-dom';
-import { submitAnnotation, type AnnotationState } from '@/app/lib/actions';
+import { submitAnnotation, revertAnnotation, type AnnotationState } from '@/app/lib/actions';
 import Link from 'next/link';
 
 interface AnnotationFormProps {
@@ -14,13 +14,13 @@ interface AnnotationFormProps {
 }
 
 export default function AnnotationForm({ image, nextId }: AnnotationFormProps) {
-  // Check if the image has a userStatus. This determines if it's "view-only".
   const isAnnotated = !!image.userStatus;
   
   const [agreed, setAgreed] = useState<boolean | null>(null);
   const initialState: AnnotationState = { message: null, errors: {} };
   const submitAnnotationWithParams = submitAnnotation.bind(null, image.id, image.modelStatus, nextId);
   const [state, dispatch] = useFormState(submitAnnotationWithParams, initialState);
+  const revertAnnotationWithId = revertAnnotation.bind(null, image.id);
 
   return (
     <div>
@@ -35,9 +35,10 @@ export default function AnnotationForm({ image, nextId }: AnnotationFormProps) {
             <p className="font-semibold text-green-600 dark:text-green-400">Your Previous Annotation:</p>
             <p className="text-lg font-bold p-2 bg-white dark:bg-gray-600 rounded mt-1">{image.userStatus}</p>
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400 text-center pt-2">
-            This image has already been annotated.
-          </p>
+          {/* --- Edit Button Form --- */}
+          <form action={revertAnnotationWithId} className="pt-2">
+             <EditButton />
+          </form>
         </div>
       )}
 
@@ -48,7 +49,6 @@ export default function AnnotationForm({ image, nextId }: AnnotationFormProps) {
             <p className="font-semibold">Model Prediction:</p>
             <p className="text-lg p-2 bg-gray-100 dark:bg-gray-700 rounded">{image.modelStatus}</p>
           </div>
-
           <div>
             <label className="font-semibold block mb-2">Do you agree?</label>
             <div className="flex gap-4">
@@ -57,7 +57,6 @@ export default function AnnotationForm({ image, nextId }: AnnotationFormProps) {
             </div>
             <input type="hidden" name="userAgrees" value={agreed === null ? '' : (agreed ? 'yes' : 'no')} />
           </div>
-
           {agreed === false && (
             <div>
               <label className="font-semibold block mb-2">What is the abdomen status according to you?</label>
@@ -70,9 +69,7 @@ export default function AnnotationForm({ image, nextId }: AnnotationFormProps) {
               </select>
             </div>
           )}
-          
           {state.message && <p className="text-sm text-red-500">{state.message}</p>}
-          
           <div className="flex items-center gap-4 pt-4">
             <SubmitButton />
             <Link 
@@ -88,6 +85,7 @@ export default function AnnotationForm({ image, nextId }: AnnotationFormProps) {
   );
 }
 
+// Button for submitting a new annotation
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
@@ -95,4 +93,14 @@ function SubmitButton() {
       {pending ? 'Saving...' : 'Submit'}
     </button>
   );
+}
+
+// Button for editing an existing annotation
+function EditButton() {
+    const { pending } = useFormStatus();
+    return (
+        <button type="submit" disabled={pending} className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-2 px-4 rounded disabled:opacity-50">
+            {pending ? 'Unlocking...' : 'Edit Annotation'}
+        </button>
+    );
 }

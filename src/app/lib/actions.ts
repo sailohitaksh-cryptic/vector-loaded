@@ -110,3 +110,41 @@ export async function submitAnnotation(
     redirect('/home');
   }
 }
+
+
+export async function revertAnnotation(imageId: number) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) {
+    throw new Error('Authentication error.');
+  }
+
+  const client = await db.connect();
+  try {
+    await client.sql`BEGIN`;
+
+    // 1. Delete the old annotation from the 'annotations' table
+    await client.sql`
+      DELETE FROM annotations
+      WHERE "userId" = ${Number(userId)} AND "imageId" = ${imageId};
+    `;
+
+    // 2. Set the assignment status back to 'unannotated'
+    await client.sql`
+      UPDATE image_assignments
+      SET status = 'unannotated'
+      WHERE "userId" = ${Number(userId)} AND "imageId" = ${imageId};
+    `;
+
+    await client.sql`COMMIT`;
+  } catch (error) {
+    await client.sql`ROLLBACK`;
+    throw new Error('Database Error: Failed to revert annotation.');
+  } finally {
+    client.release();
+  }
+
+  // Refresh the dashboard and the current page
+  revalidatePath('/home');
+  revalidatePath(`/annotate/${imageId}`);
+}
