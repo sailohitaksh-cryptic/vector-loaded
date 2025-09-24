@@ -6,10 +6,11 @@ export type User = {
   password?: string;
 };
 
-export interface ImageForAnnotation {
+// This is the single, correct definition for your image data.
+export type ImageForAnnotation = {
   id: number;
   imageName: string;
   imageUrl: string;
   modelStatus: string;
-  annotationId?: number | null;
-}
+  userStatus?: string | null;
+};

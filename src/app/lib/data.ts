@@ -62,10 +62,22 @@ export async function fetchImageForAnnotation(id: number) {
     if (!userId) return null;
 
     try {
-        const imageResult = await sql<ImageForAnnotation>`SELECT * FROM images WHERE id = ${id}`;
+        // This query now joins the annotations table to get the user's previous work.
+        const imageResult = await sql<ImageForAnnotation>`
+            SELECT
+                i.id,
+                i."imageName",
+                i."imageUrl",
+                i."modelStatus",
+                a."userStatus" -- Fetches the user's annotation if it exists
+            FROM images i
+            LEFT JOIN annotations a ON i.id = a."imageId" AND a."userId" = ${Number(userId)}
+            WHERE i.id = ${id}
+        `;
         const image = imageResult.rows[0];
         if (!image) return null;
 
+        // This logic to find the next image remains the same.
         const assignmentsResult = await sql`
             SELECT i.id FROM images i
             JOIN image_assignments ia ON i.id = ia."imageId"
